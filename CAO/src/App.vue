@@ -3,3 +3,9 @@
     hello world!
   </div>
 </template>
+
+<style scoped>
+  .container {
+    color: red;
+  }
+</style>
