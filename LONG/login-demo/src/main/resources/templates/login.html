@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+</head>
+<body>
+<!--<form action="/test/login" method="post">-->
+    <div><label> 用户名 : <input type="text" name="username"/> </label></div>
+    <div><label> 密  码 : <input type="password" name="password"/> </label></div>
+    <div><button onclick="test()">登录</button></div>
+<!--    <div><input type="submit" value="登录"/></div>-->
+<!--</form>-->
+
+    <script src="../jquery.js"></script>
+    <script>
+        function test(){
+            var username = $("input[name='username']").val();
+            var password = $("input[name='password']").val();
+            $.ajax({
+                type: "post",
+                url: "/oauth/token?username=" + username + "&password=" + password + "&grant_type=password&client_id=client_2&client_secret=123456",
+                dataType:"json",
+                success:function (data) {
+                    console.log(data);
+                    // if (data.status == "200") {
+                        location.href="/index?access_token=" + data.access_token;
+                    setInfo(data.access_token);
+                    // } else {
+                    //     alert(data.msg)
+                    // }
+                },
+                error:function (data) {
+                    console.log(data.responseJSON)
+                    if (data != null) {
+                        alert(data.responseJSON.error_description);
+                    }else {
+                        alert("服务器开小差去了");
+                    }
+                }
+            });
+        };
+
+        //储存数据
+        function setInfo(token) {
+            var storage = window.sessionStorage;
+            storage.setItem('token', token);
+        }
+
+        function setUserName(name) {
+            var storage = window.sessionStorage;
+            storage.setItem('name', name);
+        }
+    </script>
+</body>
+</html>
