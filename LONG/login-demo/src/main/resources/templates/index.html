@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+    <h1>首页</h1>
+    <a  href="javascript:test1()">管理</a>
+    <a  href="javascript:test2()">test</a>
+    <a  href="javascript:test3()">获取用户</a>
+    <a  href="javascript:test4()">获取所有的用户</a>
+    <a  href="javascript:getUser()">获取用户信息</a>
+    <a  href="javascript:logout()">注销</a>
+    <script src="../jquery.js"></script>
+    <script>
+        function getAjax(url){
+
+            $.ajax({
+                type: "get",
+                url: url,
+                beforeSend: function(request) {
+                    request.setRequestHeader("Authorization","Bearer " + getInfo());
+                },
+                // dataType:"json",
+                success:function (data) {
+                    console.log(data);
+                },
+                error:function (data) {
+                    if (data != null) {
+                        alert(data.responseJSON.error_description);
+                    }else {
+                        alert("服务器开小差去了");
+                    }
+                }
+            });
+        };
+
+        function logout(){
+            $.ajax({
+                type: "post",
+                url: "/logout",
+                // dataType:"json",
+                beforeSend: function(request) {
+                    request.setRequestHeader("Authorization","Bearer " + getInfo());
+                },
+                success:function (data) {
+                    console.log(data);
+                },
+                error:function (data) {
+                    console.log(data.responseJSON)
+                    if (data != null) {
+                        alert(data.responseJSON.error_description);
+                    }else {
+                        alert("服务器开小差去了");
+                    }
+                }
+            });
+        };
+
+        function test1(){
+            getAjax("test1")
+        };
+
+        function test2(){
+            getAjax("test2")
+        };
+
+        function test3(){
+            getAjax("test3")
+        };
+
+        function test4(){
+            getAjax("test4")
+        };
+
+        function getUser(){
+            getAjax("getUser")
+        };
+        //储存数据
+        function getInfo() {
+            var str = window.sessionStorage;
+            // alert(str.getItem("token"));
+            return str.getItem("token");
+        }
+    </script>
+</body>
+</html>
