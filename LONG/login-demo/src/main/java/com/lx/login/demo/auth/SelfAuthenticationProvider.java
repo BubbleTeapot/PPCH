@@ -37,8 +37,6 @@ public class SelfAuthenticationProvider implements AuthenticationProvider {
     @Resource
     private RedisUtil redisUtils;
 
-    @Autowired
-    private SessionRegistry sessionRegistry;
 
     @Autowired
     RedisConnectionFactory redisConnectionFactory;
@@ -61,19 +59,24 @@ public class SelfAuthenticationProvider implements AuthenticationProvider {
 //        boolean flag = redisUtils.hasKey(key);
 //        redisUtils.del(key);
 
+        //查询是否已经登陆，如果登陆进行注销， 下面的代码是注销的实现
         RedisTokenStore tokenStore = new RedisTokenStore(redisConnectionFactory);
         Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(client, userName);
-        for (OAuth2AccessToken token : tokens) {
-            OAuth2AccessToken accessToken = tokenStore.readAccessToken(token.toString());
-            if (accessToken == null) {
-            } else {
-                if (accessToken.getRefreshToken() != null) {
-                    tokenStore.removeRefreshToken(accessToken.getRefreshToken());
-                }
-
-                tokenStore.removeAccessToken(accessToken);
-            }
-        }
+        authentication.getName();
+//        if (!tokens.isEmpty()){
+//            authentication.setAuthenticated(true);
+//        }
+//        for (OAuth2AccessToken token : tokens) {
+//            OAuth2AccessToken accessToken = tokenStore.readAccessToken(token.toString());
+//            if (accessToken == null) {
+//            } else {
+//                if (accessToken.getRefreshToken() != null) {
+//                    tokenStore.removeRefreshToken(accessToken.getRefreshToken());
+//                }
+//
+//                tokenStore.removeAccessToken(accessToken);
+//            }
+//        }
 
         UserDetails userInfo = userDetailsService.loadUserByUsername(userName);
 

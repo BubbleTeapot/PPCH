@@ -71,8 +71,7 @@ public class OAuth2ServerConfig {
                     .and()
                     .requestMatchers().anyRequest()
                     .and()
-                    .anonymous()
-                    .and()
+                    .anonymous().disable()
                     .authorizeRequests()
 //                    .antMatchers("/product/**").access("#oauth2.hasScope('select') and hasRole('ROLE_USER')")
                     .antMatchers("/order/**").authenticated();//配置order访问控制，必须认证过后才可以访问
@@ -124,7 +123,7 @@ public class OAuth2ServerConfig {
                             .resourceIds(resourceIds)
                             .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(details.getClientSecret()))
                             //设置token有效期
-                            .accessTokenValiditySeconds(3600)
+                            .accessTokenValiditySeconds(60)
                             //设置refreshToken有效期
                             .refreshTokenValiditySeconds(24 * 3600)
                             //支持的认证方式

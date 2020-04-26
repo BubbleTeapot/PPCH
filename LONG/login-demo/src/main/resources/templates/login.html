@@ -19,7 +19,7 @@
             var password = $("input[name='password']").val();
             $.ajax({
                 type: "post",
-                url: "/oauth/token?username=" + username + "&password=" + password + "&grant_type=password&client_id=client_2&client_secret=123456",
+                url: "/oauth/token?username=" + username + "&password=" + password + "&grant_type=password&scope=select&client_id=client_2&client_secret=123456",
                 dataType:"json",
                 success:function (data) {
                     console.log(data);
@@ -33,7 +33,7 @@
                 },
                 error:function (data) {
                     console.log(data.responseJSON)
-                    if (data != null) {
+                    if (data.responseJSON != null) {
                         alert(data.responseJSON.error_description);
                     }else {
                         alert("服务器开小差去了");

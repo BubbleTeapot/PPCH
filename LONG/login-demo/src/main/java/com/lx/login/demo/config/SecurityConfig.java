@@ -4,6 +4,7 @@ import com.lx.login.demo.auth.SelfAuthenticationProvider;
 import com.lx.login.demo.auth.SelfUserDetailsService;
 import com.lx.login.demo.auth.handler.*;
 import com.lx.login.demo.auth.handler.oauth2.MyAuthenticationSuccessHandler;
+//import com.lx.login.demo.auth.interceptor.AuthFilterSecurityInterceptor;
 import com.lx.login.demo.auth.interceptor.AuthFilterSecurityInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -54,8 +55,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     ExpireSessionStrategy expireSessionStrategy;
 
-    @Autowired
-    SessionRegistry sessionRegistry;
+//    @Autowired
+//    SessionRegistry sessionRegistry;
     @Autowired
     private AuthFilterSecurityInterceptor authFilterSecurityInterceptor;  //拦截器
 
@@ -88,14 +89,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .anonymous().disable()  //关闭匿名用户
                 .addFilterBefore(authFilterSecurityInterceptor, FilterSecurityInterceptor.class)  //开启权限拦截
                 .authorizeRequests()
-                .antMatchers("/test/**","/oauth/**").permitAll()//不拦截的请求
+                .antMatchers("/aaaa").permitAll()//不拦截的请求
                 .anyRequest()
                 .authenticated()// 其他 url 需要身份认证
+
+
 
                 .and()
                 .formLogin()  //开启登录
                 .loginPage("/loginPage")//登录路径
-                .loginProcessingUrl("/oauth/token")//登录接口
+                .loginProcessingUrl("/login")//登录接口
                 .successHandler(authenticationSuccessHandler) // 自定义登录成功处理
 //                .successHandler(myAuthenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler) // 自定义登录失败处理
@@ -112,20 +115,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.exceptionHandling().accessDeniedHandler(accessDeniedHandler); // 自定义无权访问处理
 
-//        http.sessionManagement().maximumSessions(1).expiredUrl("/test/test");
-        http.sessionManagement()
-//                .invalidSessionUrl("/test/test")//session失效处理
-                .maximumSessions(1)
-//                .maxSessionsPreventsLogin(true)
-                .sessionRegistry(sessionRegistry)
-//                .expiredUrl("/test/test");
-                .expiredSessionStrategy(expireSessionStrategy);//已登录处理
+////        http.sessionManagement().maximumSessions(1).expiredUrl("/test/test");
+//        http.sessionManagement()
+////                .invalidSessionUrl("/test/test")//session失效处理
+//                .maximumSessions(1)
+////                .maxSessionsPreventsLogin(true)
+//                .sessionRegistry(sessionRegistry)
+////                .expiredUrl("/test/test");
+//                .expiredSessionStrategy(expireSessionStrategy);//已登录处理
     }
 
-    @Bean
-    public SessionRegistry sessionRegistry() {
-        return new SessionRegistryImpl();
-    }
+//    @Bean
+//    public SessionRegistry sessionRegistry() {
+//        return new SessionRegistryImpl();
+//    }
 
 
 }
