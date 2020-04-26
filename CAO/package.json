@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "server": "node ./build/server.js",
-    "build": "webpack --env.NODE_ENV=local --env.production --config ./build/webpack.config.js"
+    "build": "webpack --config ./build/webpack.pro.config.js"
   },
   "repository": {
     "type": "git",
