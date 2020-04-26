@@ -39,13 +39,14 @@
         function logout(){
             $.ajax({
                 type: "post",
-                url: "/logout",
+                url: "/userLogout",
                 // dataType:"json",
                 beforeSend: function(request) {
                     request.setRequestHeader("Authorization","Bearer " + getInfo());
                 },
                 success:function (data) {
                     console.log(data);
+                    location.href="/loginPage";
                 },
                 error:function (data) {
                     console.log(data.responseJSON)
