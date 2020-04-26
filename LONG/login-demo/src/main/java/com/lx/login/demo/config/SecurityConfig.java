@@ -3,6 +3,7 @@ package com.lx.login.demo.config;
 import com.lx.login.demo.auth.SelfAuthenticationProvider;
 import com.lx.login.demo.auth.SelfUserDetailsService;
 import com.lx.login.demo.auth.handler.*;
+import com.lx.login.demo.auth.handler.oauth2.MyAuthenticationSuccessHandler;
 import com.lx.login.demo.auth.interceptor.AuthFilterSecurityInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +34,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     AjaxAuthenticationSuccessHandler authenticationSuccessHandler;  // 登录成功返回的 JSON 格式数据给前端（否则为 html）
+//    @Autowired
+//    MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
 
     @Autowired
     AjaxAuthenticationFailureHandler authenticationFailureHandler;  //  登录失败返回的 JSON 格式数据给前端（否则为 html）
@@ -94,6 +97,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginPage("/loginPage")//登录路径
                 .loginProcessingUrl("/oauth/token")//登录接口
                 .successHandler(authenticationSuccessHandler) // 自定义登录成功处理
+//                .successHandler(myAuthenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler) // 自定义登录失败处理
                 .permitAll()
                 .and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)//自定义未登录处理

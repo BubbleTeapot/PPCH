@@ -5,6 +5,9 @@ import com.lx.login.demo.auth.MyClientDetailsService;
 import com.lx.login.demo.dao.MyClientDetailDao;
 import com.lx.login.demo.entity.MyClientDetails;
 import com.lx.login.demo.entity.SelfUserDetails;
+import com.lx.login.demo.redis.RedisUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,6 +47,8 @@ import java.util.Random;
  */
 @Configuration
 public class OAuth2ServerConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(OAuth2ServerConfig.class);
 
     private static final String DEMO_RESOURCE_ID = "order";
 
@@ -166,6 +171,7 @@ public class OAuth2ServerConfig {
             //对称加密
             Random random = new Random();
             Integer number = random.nextInt(99) + 100;
+            log.info("生成的随机数为：{}", number.toString());
             converter.setSigningKey(number.toString());
             return converter;
         }
