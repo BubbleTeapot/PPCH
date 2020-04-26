@@ -39,7 +39,7 @@
         function logout(){
             $.ajax({
                 type: "post",
-                url: "/logout",
+                url: "/userLogout",
                 // dataType:"json",
                 beforeSend: function(request) {
                     request.setRequestHeader("Authorization","Bearer " + getInfo());

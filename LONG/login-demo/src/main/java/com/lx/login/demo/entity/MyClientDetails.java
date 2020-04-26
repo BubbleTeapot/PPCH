@@ -28,10 +28,6 @@ public class MyClientDetails implements ClientDetails {
         this.secret = secret;
     }
 
-    public String getSecret() {
-        return secret;
-    }
-
     @Override
     public String getClientId() {
         return clinetId;
@@ -56,7 +52,7 @@ public class MyClientDetails implements ClientDetails {
 
     @Override
     public String getClientSecret() {
-        return null;
+        return secret;
     }
 
     @Override

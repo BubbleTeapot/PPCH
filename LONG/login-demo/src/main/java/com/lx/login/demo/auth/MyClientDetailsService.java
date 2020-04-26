@@ -25,7 +25,7 @@ public class MyClientDetailsService implements org.springframework.security.oaut
     @Override
     public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
         MyClientDetails clientDetails = myClientDetailDao.selectByClientId(clientId);
-        clientDetails.setSecret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(clientDetails.getSecret()));
+        clientDetails.setSecret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(clientDetails.getClientSecret()));
         return clientDetails;
     }
 }

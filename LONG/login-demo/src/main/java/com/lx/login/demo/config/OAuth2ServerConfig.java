@@ -2,6 +2,8 @@ package com.lx.login.demo.config;
 
 
 import com.lx.login.demo.auth.MyClientDetailsService;
+import com.lx.login.demo.dao.MyClientDetailDao;
+import com.lx.login.demo.entity.MyClientDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -10,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.oauth2.config.annotation.builders.InMemoryClientDetailsServiceBuilder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -20,6 +23,10 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
+import org.thymeleaf.util.ArrayUtils;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author longxin
@@ -71,23 +78,48 @@ public class OAuth2ServerConfig {
         @Autowired
         MyClientDetailsService clientDetailsService;
 
+        @Resource
+        MyClientDetailDao myClientDetailDao;
+
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
             //配置两个客户端,一个用于password认证一个用于client认证
-            clients.
-//                    withClientDetails(clientDetailsService);
-            inMemory().withClient("client_1")
-                    .resourceIds(DEMO_RESOURCE_ID)
-                    .authorizedGrantTypes("client_credentials", "refresh_token")
-                    .scopes("select")
-                    .authorities("client")
-                    .secret("123456")
-                    .and().withClient("client_2")
-                    .resourceIds(DEMO_RESOURCE_ID)
-                    .authorizedGrantTypes("password", "refresh_token")
-                    .scopes("select")
-                    .authorities("client")
-                    .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("123456"));
+//            clients.
+////                    withClientDetails(clientDetailsService);
+//            inMemory().withClient("client_1")
+//                    .resourceIds(DEMO_RESOURCE_ID)
+//                    .authorizedGrantTypes("client_credentials", "refresh_token")
+//                    .scopes("select")
+//                    .authorities("client")
+//                    .secret("123456")
+//                    .and().withClient("client_2")
+//                    .resourceIds(DEMO_RESOURCE_ID)
+//                    .authorizedGrantTypes("password", "refresh_token")
+//                    .scopes("select")
+//                    .authorities("client")
+//                    .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("123456"));
+            InMemoryClientDetailsServiceBuilder builder = clients.inMemory();
+            List<MyClientDetails> clientDetails= myClientDetailDao.listClient();
+            if (!clientDetails.isEmpty()) {
+                for (MyClientDetails details : clientDetails) {
+                    String[] authorizedGrantTypes = details.getAuthorizedGrantTypes().toArray(new String[details.getAuthorizedGrantTypes().size()]);
+                    String[] resourceIds = details.getResourceIds().toArray(new String[details.getResourceIds().size()]);
+                    builder
+                            //设置客户端和密码
+                            .withClient(details.getClientId())
+                            .resourceIds(resourceIds)
+                            .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(details.getClientSecret()))
+                            //设置token有效期
+                            .accessTokenValiditySeconds(3600)
+                            //设置refreshToken有效期
+                            .refreshTokenValiditySeconds(3600)
+                            //支持的认证方式
+                            .authorizedGrantTypes(authorizedGrantTypes)
+//                            .autoApprove(false)
+                            //授权域
+                            .scopes("select");
+                }
+            }
         }
 
         @Override

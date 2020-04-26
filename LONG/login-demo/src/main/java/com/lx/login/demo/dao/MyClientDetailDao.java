@@ -4,6 +4,8 @@ import com.lx.login.demo.entity.MyClientDetails;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 /**
  * @author longxin
  * @description: TODO
@@ -21,4 +23,9 @@ public interface MyClientDetailDao {
             " ,scopes as scope, authorities as authorities, secret as secret" +
             " from client where client_Id = #{clientId}")
     MyClientDetails selectByClientId(@Param("clientId") String clientId);
+
+    @Select(" select client_Id as clinetId, resource_Ids as resourceIds, authorized_Grant_Types as authorizedGrantTypes" +
+            " ,scopes as scope, authorities as authorities, secret as secret" +
+            " from client")
+    List<MyClientDetails> listClient();
 }
