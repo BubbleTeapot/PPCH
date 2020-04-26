@@ -25,6 +25,7 @@
                     console.log(data);
                     // if (data.status == "200") {
                         location.href="/index?access_token=" + data.access_token;
+                        // getAjax("index");
                     setInfo(data.access_token);
                     // } else {
                     //     alert(data.msg)
@@ -32,6 +33,28 @@
                 },
                 error:function (data) {
                     console.log(data.responseJSON)
+                    if (data != null) {
+                        alert(data.responseJSON.error_description);
+                    }else {
+                        alert("服务器开小差去了");
+                    }
+                }
+            });
+        };
+
+        function getAjax(url){
+
+            $.ajax({
+                type: "get",
+                url: url,
+                beforeSend: function(request) {
+                    request.setRequestHeader("Authorization","Bearer " + getInfo());
+                },
+                // dataType:"json",
+                success:function (data) {
+                    console.log(data);
+                },
+                error:function (data) {
                     if (data != null) {
                         alert(data.responseJSON.error_description);
                     }else {

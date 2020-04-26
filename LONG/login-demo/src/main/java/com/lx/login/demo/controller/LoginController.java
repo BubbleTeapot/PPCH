@@ -1,14 +1,18 @@
 package com.lx.login.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
+import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
@@ -64,6 +68,7 @@ public class LoginController {
     @GetMapping("/getUser")
     @ResponseBody
     public Authentication getUser(){
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication;
     }
@@ -71,6 +76,10 @@ public class LoginController {
 
     @Autowired
     ConsumerTokenServices tokenServices;
+
+    @Autowired
+    RedisConnectionFactory redisConnectionFactory;
+
 
     @PostMapping("/userLogout")
     @ResponseBody
