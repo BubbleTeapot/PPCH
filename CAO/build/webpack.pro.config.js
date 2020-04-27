@@ -1,13 +1,21 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const PreloadPlugin = require('preload-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     mode: 'production',
     entry: './src/index.js',
-    // devtool: 'source-map',
-    devtool: 'eval',
+    devtool: 'source-map',
+    // devtool: 'eval',
     output: {
         filename: 'js/[name].[contenthash:8].js',
         path: path.resolve(__dirname, '../dist'),
@@ -26,16 +34,88 @@ module.exports = {
         ]
     },
     plugins: [
-        new CleanWebpackPlugin(),
+        // new CleanWebpackPlugin(),
+        new VueLoaderPlugin(),
+        new webpack.DefinePlugin(
+            {
+                'process.env': {
+                    NODE_ENV: '"production"',
+                }
+            }
+        ),
+        new CaseSensitivePathsPlugin(), //区分路径大小写(避免osx开发人员路径书写冲突)
+        new FriendlyErrorsWebpackPlugin(), //识别webpack报错
+        new MiniCssExtractPlugin({ //将css单独打包
+            filename: 'css/[name].[contenthash:8].css',
+            chunkFilename: 'css/[name].[contenthash:8].css'
+        }),
+        new OptimizeCssAssetsPlugin({ //css压缩
+            assetNameRegExp: /\.css$/g, //一个正则表达式，指示应优化/最小化的资产的名称。提供的正则表达式针对配置中ExtractTextPlugin实例导出的文件的文件名运行，而不是源CSS文件的文件名。默认为/\.css$/g
+            cssProcessor: require('cssnano'), //用于优化\最小化CSS的CSS处理器，默认为cssnano
+            cssProcessorOptions: {
+                preset: [
+                    'default',
+                    {
+                        discardComments: {
+                            removeAll: true 
+                        } 
+                    }
+                ]
+            },
+            canPrint: true //指示插件是否可以将消息打印到控制台
+        }),
+        new webpack.HashedModuleIdsPlugin({hashDigest: 'hex'}), //该插件会根据模块的相对路径生成一个四位数的hash作为模块id, 建议用于生产环境(使用16进制编码方式)
         new HtmlWebpackPlugin({
+            title: 'PPCH', //页面title
             filename: 'index.html',
+            minify: { //缩小生成的HTML
+                collapseWhitespace: true,
+                removeComments: true,
+                removeRedundantAttributes: true,
+                removeScriptTypeAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                useShortDoctype: true
+            },
             template: './public/index.html'
         }),
-        new VueLoaderPlugin()
+        new PreloadPlugin( //不需要预加载的资源
+            {
+              rel: 'preload',
+              include: 'initial',
+              fileBlacklist: [ 
+                /\.map$/,
+                /hot-update\.js$/
+              ]
+            }
+        ),
+        new PreloadPlugin( //需要预加载的资源
+            {
+              rel: 'prefetch',
+              include: 'asyncChunks'
+            }
+        ),
+        new CopyPlugin(
+            [
+              {
+                from: path.resolve(__dirname, '../public'),
+                to: path.resolve(__dirname, '../dist'),
+                toType: 'dir',
+                ignore: [
+                    'images/**/*',
+                    '.DS_Store',
+                    {
+                        glob: 'index.html',
+                        matchBase: false
+                    }
+                ]
+              }
+            ]
+        )
     ],
     optimization: {
         moduleIds: 'hashed',
         runtimeChunk: 'single',
+        namedChunks: true, //使用 chunkName 来替换 chunkId，实现固化 chunkId，保持缓存的能力
         splitChunks: {
             cacheGroups: {
                 vendors: {
@@ -55,36 +135,230 @@ module.exports = {
                 }
             }
         },
-        minimizer
+        /* 对js压缩 */
+        minimizer: [
+            new TerserPlugin(
+                {
+                    terserOptions: {
+                        /* terserOptions具体参数请参看 https://github.com/terser/terser#minify-options */
+                        compress: {
+                            /* compress具体参数请参看 https://github.com/terser/terser#compress-options */
+                            arrows: false,
+                            collapse_vars: false,
+                            comparisons: false,
+                            computed_props: false,
+                            hoist_funs: false,
+                            hoist_props: false,
+                            hoist_vars: false,
+                            inline: false,
+                            loops: false,
+                            negate_iife: false,
+                            properties: false,
+                            reduce_funcs: false,
+                            reduce_vars: false,
+                            switches: false,
+                            toplevel: false,
+                            typeofs: false,
+                            booleans: true,
+                            if_return: true,
+                            sequences: true,
+                            unused: true,
+                            conditionals: true,
+                            dead_code: true,
+                            evaluate: true
+                        },
+                        mangle: {
+                            safari10: true
+                        }
+                    },
+                    sourceMap: true,
+                    cache: true, // 开启缓存
+                    parallel: true, // 开启多线程
+                    extractComments: false // 提取注释
+                }
+            )
+        ]
     },
     module: {
+        noParse: /^(vue|vue-router|vuex|vuex-router-sync)$/, //不解析的文件
         rules: [
             {
-                test: /\.css$/,
+                test: /\.vue$/,
                 use: [
-                    'style-loader',
-                    'css-loader'
+                    {
+                        loader: 'cache-loader', //减少二次打包时间
+                    },
+                    {
+                        loader: 'vue-loader',
+                        options: {
+                            compilerOptions: { //处理空格
+                                whitespace: 'condense'
+                            },
+                        }
+                    }
                 ]
             },
             {
-                test: /\.js$/,
-                include: path.resolve(__dirname, '../src'),
+                test: /\.(png|jpe?g|gif|webp)(\?.*)?$/,
                 use: [
-                    'babel-loader'
+                        {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 4096,
+                            fallback: {
+                                loader: 'file-loader',
+                                options: {
+                                    name: 'img/[name].[hash:8].[ext]'
+                                }
+                            }
+                        }
+                    }
                 ]
             },
             {
-                test: /\.(png|svg|jpg|gif)$/,
+                test: /\.(svg)(\?.*)?$/,
                 use: [{
-                    loader: 'url-loader',
+                    loader: 'file-loader',
                     options: {
-                        esModule: false,
-                        limit: 8192,
-                        outputPath: 'images',
-                        publicPath: 'images/',
-                        name: '[name].[hash:8].[ext]'
+                        name: 'img/[name].[hash:8].[ext]'
                     }
                 }]
+            },
+            {
+                test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 4096,
+                            fallback: {
+                                loader: 'file-loader',
+                                options: {
+                                name: 'media/[name].[hash:8].[ext]'
+                                }
+                            }
+                        }
+                  }
+                ]
+            },
+            {
+                test: /\.css$/,
+                oneOf: [
+                    {
+                        // resourceQuery: /module/,
+                        use: [
+                            {
+                                loader: MiniCssExtractPlugin.loader,
+                                options: {
+                                    hmr: false,
+                                    publicPath: '../'
+                                }
+                            },
+                            {
+                                loader: 'css-loader',
+                                options: {
+                                    sourceMap: false,
+                                    importLoaders: 2, //启用/禁用或设置在CSS加载程序之前应用的加载程序的数量
+                                    modules: {
+                                        localIdentName: '[name]_[local]_[hash:base64:5]'
+                                    }
+                                }
+                            },
+                            {
+                                loader: 'postcss-loader',
+                                options: {
+                                    sourceMap: false,
+                                }
+                            },
+                        ]
+                    },
+                    // {
+                    //     resourceQuery: /\?vue/,
+                    //     use: [
+                    //         {
+                    //             loader: 'mini-css-extract-plugin',
+                    //             options: {
+                    //                 hmr: false,
+                    //                 publicPath: '../'
+                    //             }
+                    //         },
+                    //         {
+                    //             loader: 'css-loader',
+                    //             options: {
+                    //                 sourceMap: false,
+                    //                 importLoaders: 2,
+                    //             }
+                    //         },
+                    //         {
+                    //             loader: 'postcss-loader',
+                    //             options: {
+                    //                 sourceMap: false,
+                    //             }
+                    //         },
+                    //     ]
+                    // },
+                    // {
+                    //     resourceQuery: /\.module\.\w+$/,
+                    //     use: [
+                    //         {
+                    //             loader: 'mini-css-extract-plugin',
+                    //             options: {
+                    //                 hmr: false,
+                    //                 publicPath: '../'
+                    //             }
+                    //         },
+                    //         {
+                    //             loader: 'css-loader',
+                    //             options: {
+                    //                 sourceMap: false,
+                    //                 importLoaders: 2,
+                    //                 modules: {
+                    //                     localIdentName: '[name]_[local]_[hash:base64:5]'
+                    //                 }
+                    //             }
+                    //         },
+                    //         {
+                    //             loader: 'postcss-loader',
+                    //             options: {
+                    //                 sourceMap: false,
+                    //             }
+                    //         },
+                    //     ]
+                    // },
+                    // {
+                    //     use: [
+                    //         {
+                    //             loader: 'mini-css-extract-plugin',
+                    //             options: {
+                    //                 hmr: false,
+                    //                 publicPath: '../'
+                    //             }
+                    //         },
+                    //         {
+                    //             loader: 'css-loader',
+                    //             options: {
+                    //                 sourceMap: false,
+                    //                 importLoaders: 2,
+                    //             }
+                    //         },
+                    //         {
+                    //             loader: 'postcss-loader',
+                    //             options: {
+                    //                 sourceMap: false,
+                    //             }
+                    //         },
+                    //     ]
+                    // },
+                ]
+            },
+            {
+                test: /\.m?jsx?$/,
+                include: path.resolve(__dirname, '../src'),
+                use: [
+                    'cache-loader',
+                    'thread-loader',
+                    'babel-loader'
+                ]
             },
             {
                 test: /\.(woff|woff2|eot|ttf|otf)$/,
@@ -92,18 +366,6 @@ module.exports = {
                     'url-loader'
                 ]
             },
-            {
-                test: /\.xml$/,
-                use: [
-                    'xml-loader'
-                ]
-            },
-            {
-                test: /\.vue$/,
-                use: [
-                    'vue-loader'
-                ]
-            }
         ]
     },
 };
