@@ -55,8 +55,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     ExpireSessionStrategy expireSessionStrategy;
 
-//    @Autowired
-//    SessionRegistry sessionRegistry;
+    @Autowired
+    SessionRegistry sessionRegistry;
     @Autowired
     private AuthFilterSecurityInterceptor authFilterSecurityInterceptor;  //拦截器
 
@@ -75,7 +75,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         // 加入自定义的安全认证
-//        auth.userDetailsService(selfUserDetailsService).passwordEncoder(new BCryptPasswordEncoder());
+//        auth.userDetailsService(selfUserDetailsService);
+//                .passwordEncoder(new BCryptPasswordEncoder());
         auth.authenticationProvider(provider);
         //使用默认的安全认证
     }
@@ -89,7 +90,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .anonymous().disable()  //关闭匿名用户
                 .addFilterBefore(authFilterSecurityInterceptor, FilterSecurityInterceptor.class)  //开启权限拦截
                 .authorizeRequests()
-                .antMatchers("/aaaa").permitAll()//不拦截的请求
+//                .antMatchers("/test1").permitAll()//不拦截的请求
                 .anyRequest()
                 .authenticated()// 其他 url 需要身份认证
 
@@ -125,10 +126,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .expiredSessionStrategy(expireSessionStrategy);//已登录处理
     }
 
-//    @Bean
-//    public SessionRegistry sessionRegistry() {
-//        return new SessionRegistryImpl();
-//    }
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
 
 
 }

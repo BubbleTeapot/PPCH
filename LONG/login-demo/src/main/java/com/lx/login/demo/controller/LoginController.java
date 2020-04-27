@@ -42,7 +42,7 @@ public class LoginController {
     private AuthorizationServerTokenServices authorizationServerTokenServices;
 
 
-    @RequestMapping("login")
+    @RequestMapping("/login")
     @ResponseBody
     public OAuth2AccessToken login(String username, String password, String grant_type, String scope, String client_id, String client_secret){
         ClientDetails clientDetails = clientDetailsService.loadClientByClientId(client_id);

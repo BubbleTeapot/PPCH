@@ -2,6 +2,9 @@ package com.lx.login.demo.config;
 
 
 import com.lx.login.demo.auth.MyClientDetailsService;
+import com.lx.login.demo.auth.SelfUserDetailsService;
+import com.lx.login.demo.auth.handler.*;
+import com.lx.login.demo.auth.handler.oauth2.MyAuthenticationSuccessHandler;
 import com.lx.login.demo.dao.MyClientDetailDao;
 import com.lx.login.demo.entity.MyClientDetails;
 import com.lx.login.demo.entity.SelfUserDetails;
@@ -32,6 +35,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.thymeleaf.util.ArrayUtils;
 
 import javax.annotation.Resource;
@@ -52,6 +56,7 @@ public class OAuth2ServerConfig {
 
     private static final String DEMO_RESOURCE_ID = "order";
 
+
     @Configuration
     @EnableResourceServer
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
@@ -71,11 +76,31 @@ public class OAuth2ServerConfig {
                     .and()
                     .requestMatchers().anyRequest()
                     .and()
-                    .anonymous().disable()
+//                    .anonymous().disable()
                     .authorizeRequests()
-//                    .antMatchers("/product/**").access("#oauth2.hasScope('select') and hasRole('ROLE_USER')")
-                    .antMatchers("/order/**").authenticated();//配置order访问控制，必须认证过后才可以访问
+//                    .antMatchers("/test1").permitAll()
+//                    .access("#oauth2.hasScope('select') and hasRole('ROLE_USER')")
+                    .anyRequest()
+                    .authenticated();//配置order访问控制，必须认证过后才可以访问
             // @formatter:on
+            http
+                    .formLogin()  //开启登录
+                    .loginPage("/loginPage")//登录路径
+                    .loginProcessingUrl("/login")//登录接口
+//                    .successHandler(authenticationSuccessHandler) // 自定义登录成功处理
+//                    .failureHandler(authenticationFailureHandler) // 自定义登录失败处理
+//                    .permitAll()
+//                    .and().exceptionHandling().accessDeniedPage("/loginPage")
+//                    .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)//自定义未登录处理
+//                    .and()
+//                    .logout()
+//                    .logoutUrl("/logout")
+//                    .logoutSuccessUrl("/loginPage")
+////                .logoutSuccessHandler(logoutSuccessHandler)
+//                    .deleteCookies("JSESSIONID")
+////                .invalidateHttpSession(true)
+                    .permitAll();
+
         }
     }
 
@@ -90,6 +115,9 @@ public class OAuth2ServerConfig {
 
         @Autowired
         MyClientDetailsService clientDetailsService;
+
+        @Autowired
+        SelfUserDetailsService selfUserDetailsService;
 
         @Resource
         MyClientDetailDao myClientDetailDao;
@@ -112,7 +140,7 @@ public class OAuth2ServerConfig {
 //                    .authorities("client")
 //                    .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("123456"));
             InMemoryClientDetailsServiceBuilder builder = clients.inMemory();
-            List<MyClientDetails> clientDetails= myClientDetailDao.listClient();
+            List<MyClientDetails> clientDetails = myClientDetailDao.listClient();
             if (!clientDetails.isEmpty()) {
                 for (MyClientDetails details : clientDetails) {
                     String[] authorizedGrantTypes = details.getAuthorizedGrantTypes().toArray(new String[details.getAuthorizedGrantTypes().size()]);
@@ -123,7 +151,7 @@ public class OAuth2ServerConfig {
                             .resourceIds(resourceIds)
                             .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(details.getClientSecret()))
                             //设置token有效期
-                            .accessTokenValiditySeconds(60)
+                            .accessTokenValiditySeconds(5 * 60)
                             //设置refreshToken有效期
                             .refreshTokenValiditySeconds(24 * 3600)
                             //支持的认证方式
@@ -140,6 +168,7 @@ public class OAuth2ServerConfig {
             endpoints
                     .tokenStore(new RedisTokenStore(redisConnectionFactory))
                     .accessTokenConverter(accessTokenConverter())
+//                    .userDetailsService(selfUserDetailsService)
                     .authenticationManager(authenticationManager)
                     .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST);
         }
@@ -179,6 +208,7 @@ public class OAuth2ServerConfig {
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
             //允许表单认证
             oauthServer.allowFormAuthenticationForClients();
+//            oauthServer.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()");
         }
 
     }
