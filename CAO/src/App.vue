@@ -5,7 +5,6 @@
     <div class="img"></div>
   </div>
 </template>
-
 <style scoped>
   .container {
     color: red;

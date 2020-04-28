@@ -9,18 +9,20 @@ const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const PreloadPlugin = require('preload-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+// const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-    mode: 'production',
-    entry: './src/index.js',
-    devtool: 'source-map',
+    mode: 'production', //生产模式
+    entry: {
+        app: './src/index.js'
+    }, //入口文件
+    devtool: 'source-map', //是否生成.map文件(和源代码形成映射便于调试)
     // devtool: 'eval',
     output: {
-        filename: 'js/[name].[contenthash:8].js',
-        path: path.resolve(__dirname, '../dist'),
-        publicPath: '/',
-        chunkFilename: 'js/[name].[contenthash:8].js'
+        filename: 'js/[name].[contenthash:8].js', //输出的文件名
+        path: path.resolve(__dirname, '../dist'), //输出的文件目录
+        publicPath: '/', //服务跟地址
+        chunkFilename: 'js/[name].[contenthash:8].js' //分包出口
     },
     resolve: {
         alias: {
@@ -34,9 +36,9 @@ module.exports = {
         ]
     },
     plugins: [
-        // new CleanWebpackPlugin(),
-        new VueLoaderPlugin(),
-        new webpack.DefinePlugin(
+        // new CleanWebpackPlugin(), //清除dist/打包目录下的文件
+        new VueLoaderPlugin(), //解析vue文件
+        new webpack.DefinePlugin( //定义开发环境得全局变量
             {
                 'process.env': {
                     NODE_ENV: '"production"',
@@ -65,7 +67,7 @@ module.exports = {
             canPrint: true //指示插件是否可以将消息打印到控制台
         }),
         new webpack.HashedModuleIdsPlugin({hashDigest: 'hex'}), //该插件会根据模块的相对路径生成一个四位数的hash作为模块id, 建议用于生产环境(使用16进制编码方式)
-        new HtmlWebpackPlugin({
+        new HtmlWebpackPlugin({ //打包index.html
             title: 'PPCH', //页面title
             filename: 'index.html',
             minify: { //缩小生成的HTML
@@ -94,7 +96,7 @@ module.exports = {
               include: 'asyncChunks'
             }
         ),
-        new CopyPlugin(
+        new CopyPlugin( //复制文件
             [
               {
                 from: path.resolve(__dirname, '../public'),
@@ -102,6 +104,7 @@ module.exports = {
                 toType: 'dir',
                 ignore: [
                     'images/**/*',
+                    'video/**/*',
                     '.DS_Store',
                     {
                         glob: 'index.html',
@@ -112,6 +115,7 @@ module.exports = {
             ]
         )
     ],
+    /* 分包处理 */
     optimization: {
         moduleIds: 'hashed',
         runtimeChunk: 'single',
@@ -119,10 +123,9 @@ module.exports = {
         splitChunks: {
             cacheGroups: {
                 vendors: {
-                    test: /[\\/]node_modules[\\/]/,
                     name: 'chunk-vendors',
+                    test: /[\\/]node_modules[\\/]/,
                     chunks: 'all',
-                    minChunks: 2,
                     minSize: 30000,
                     priority: -10
                 },
@@ -179,6 +182,7 @@ module.exports = {
             )
         ]
     },
+    /* 插件 */
     module: {
         noParse: /^(vue|vue-router|vuex|vuex-router-sync)$/, //不解析的文件
         rules: [
@@ -186,10 +190,10 @@ module.exports = {
                 test: /\.vue$/,
                 use: [
                     {
-                        loader: 'cache-loader', //减少二次打包时间
+                        loader: 'cache-loader', //减少二次打包时间(缓存插件)
                     },
                     {
-                        loader: 'vue-loader',
+                        loader: 'vue-loader',//vue
                         options: {
                             compilerOptions: { //处理空格
                                 whitespace: 'condense'
@@ -202,13 +206,14 @@ module.exports = {
                 test: /\.(png|jpe?g|gif|webp)(\?.*)?$/,
                 use: [
                         {
-                        loader: 'url-loader',
+                        loader: 'url-loader', //图片处理
                         options: {
-                            limit: 4096,
+                            esModule: false, //使用CommonJS
+                            limit: 4096, //图片大小超过4096k用(file-loader)处理
                             fallback: {
                                 loader: 'file-loader',
                                 options: {
-                                    name: 'img/[name].[hash:8].[ext]'
+                                    name: 'asset/img/[name].[hash:8].[ext]'
                                 }
                             }
                         }
@@ -220,7 +225,8 @@ module.exports = {
                 use: [{
                     loader: 'file-loader',
                     options: {
-                        name: 'img/[name].[hash:8].[ext]'
+                        esModule: false,
+                        name: 'asset/img/[name].[hash:8].[ext]'
                     }
                 }]
             },
@@ -230,11 +236,12 @@ module.exports = {
                     {
                         loader: 'url-loader',
                         options: {
+                            esModule: false,
                             limit: 4096,
                             fallback: {
                                 loader: 'file-loader',
                                 options: {
-                                name: 'media/[name].[hash:8].[ext]'
+                                name: 'asset/media/[name].[hash:8].[ext]'
                                 }
                             }
                         }
@@ -242,10 +249,144 @@ module.exports = {
                 ]
             },
             {
+                test: /\.(woff|woff2|eot|ttf|otf)$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: 'asset/font/[name].[hash:8].[ext]'
+                        }
+                    }
+                ]
+            },
+            {
                 test: /\.css$/,
                 oneOf: [
                     {
-                        // resourceQuery: /module/,
+                        resourceQuery: /module/,
+                        use: [
+                            {
+                                loader: MiniCssExtractPlugin.loader, //单独打包css
+                                options: {
+                                    hmr: false,
+                                    publicPath: '../'
+                                }
+                            },
+                            {
+                                loader: 'css-loader',
+                                options: {
+                                    sourceMap: false,
+                                    importLoaders: 2, //启用/禁用或设置在CSS加载程序之前应用的加载程序的数量
+                                    modules: {
+                                        localIdentName: '[name]_[local]_[hash:base64:5]'
+                                    }
+                                }
+                            },
+                            {
+                                loader: 'postcss-loader', //把CSS解析成JavaScript可以操作的抽象语法树结构(Abstract Syntax Tree, AST)，第二个就是调用插件来处理AST并得到结果
+                                options: {
+                                    sourceMap: false,
+                                    plugins: [
+                                        require("autoprefixer")
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        resourceQuery: /\?vue/,
+                        use: [
+                            {
+                                loader: MiniCssExtractPlugin.loader,
+                                options: {
+                                    hmr: false,
+                                    publicPath: '../'
+                                }
+                            },
+                            {
+                                loader: 'css-loader',
+                                options: {
+                                    sourceMap: false,
+                                    importLoaders: 2,
+                                }
+                            },
+                            {
+                                loader: 'postcss-loader',
+                                options: {
+                                    sourceMap: false,
+                                    plugins: [
+                                        require("autoprefixer")
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        resourceQuery: /\.module\.\w+$/,
+                        use: [
+                            {
+                                loader: MiniCssExtractPlugin.loader,
+                                options: {
+                                    hmr: false,
+                                    publicPath: '../'
+                                }
+                            },
+                            {
+                                loader: 'css-loader',
+                                options: {
+                                    sourceMap: false,
+                                    importLoaders: 2,
+                                    modules: {
+                                        localIdentName: '[name]_[local]_[hash:base64:5]'
+                                    }
+                                }
+                            },
+                            {
+                                loader: 'postcss-loader',
+                                options: {
+                                    sourceMap: false,
+                                    plugins: [
+                                        require("autoprefixer")
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        use: [
+                            {
+                                loader: MiniCssExtractPlugin.loader,
+                                options: {
+                                    hmr: false,
+                                    publicPath: '../'
+                                }
+                            },
+                            {
+                                loader: 'css-loader',
+                                options: {
+                                    sourceMap: false,
+                                    importLoaders: 2,
+                                }
+                            },
+                            {
+                                loader: 'postcss-loader',
+                                options: {
+                                    sourceMap: false,
+                                    plugins: [
+                                        require("autoprefixer")
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                ]
+            },
+            /* 解析.less文件 */
+            {
+                test: /\.less$/,
+                oneOf: [
+                    {
+                        resourceQuery: /module/,
                         use: [
                             {
                                 loader: MiniCssExtractPlugin.loader,
@@ -268,87 +409,123 @@ module.exports = {
                                 loader: 'postcss-loader',
                                 options: {
                                     sourceMap: false,
+                                    plugins: [
+                                        require("autoprefixer")
+                                    ]
                                 }
                             },
+                            {
+                                loader: 'less-loader',
+                                options: {
+                                  sourceMap: false
+                                }
+                            }
                         ]
                     },
-                    // {
-                    //     resourceQuery: /\?vue/,
-                    //     use: [
-                    //         {
-                    //             loader: 'mini-css-extract-plugin',
-                    //             options: {
-                    //                 hmr: false,
-                    //                 publicPath: '../'
-                    //             }
-                    //         },
-                    //         {
-                    //             loader: 'css-loader',
-                    //             options: {
-                    //                 sourceMap: false,
-                    //                 importLoaders: 2,
-                    //             }
-                    //         },
-                    //         {
-                    //             loader: 'postcss-loader',
-                    //             options: {
-                    //                 sourceMap: false,
-                    //             }
-                    //         },
-                    //     ]
-                    // },
-                    // {
-                    //     resourceQuery: /\.module\.\w+$/,
-                    //     use: [
-                    //         {
-                    //             loader: 'mini-css-extract-plugin',
-                    //             options: {
-                    //                 hmr: false,
-                    //                 publicPath: '../'
-                    //             }
-                    //         },
-                    //         {
-                    //             loader: 'css-loader',
-                    //             options: {
-                    //                 sourceMap: false,
-                    //                 importLoaders: 2,
-                    //                 modules: {
-                    //                     localIdentName: '[name]_[local]_[hash:base64:5]'
-                    //                 }
-                    //             }
-                    //         },
-                    //         {
-                    //             loader: 'postcss-loader',
-                    //             options: {
-                    //                 sourceMap: false,
-                    //             }
-                    //         },
-                    //     ]
-                    // },
-                    // {
-                    //     use: [
-                    //         {
-                    //             loader: 'mini-css-extract-plugin',
-                    //             options: {
-                    //                 hmr: false,
-                    //                 publicPath: '../'
-                    //             }
-                    //         },
-                    //         {
-                    //             loader: 'css-loader',
-                    //             options: {
-                    //                 sourceMap: false,
-                    //                 importLoaders: 2,
-                    //             }
-                    //         },
-                    //         {
-                    //             loader: 'postcss-loader',
-                    //             options: {
-                    //                 sourceMap: false,
-                    //             }
-                    //         },
-                    //     ]
-                    // },
+                    {
+                        resourceQuery: /\?vue/,
+                        use: [
+                            {
+                                loader: MiniCssExtractPlugin.loader,
+                                options: {
+                                    hmr: false,
+                                    publicPath: '../'
+                                }
+                            },
+                            {
+                                loader: 'css-loader',
+                                options: {
+                                    sourceMap: false,
+                                    importLoaders: 2,
+                                }
+                            },
+                            {
+                                loader: 'postcss-loader',
+                                options: {
+                                    sourceMap: false,
+                                    plugins: [
+                                        require("autoprefixer")
+                                    ]
+                                }
+                            },
+                            {
+                                loader: 'less-loader',
+                                options: {
+                                  sourceMap: false
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        resourceQuery: /\.module\.\w+$/,
+                        use: [
+                            {
+                                loader: MiniCssExtractPlugin.loader,
+                                options: {
+                                    hmr: false,
+                                    publicPath: '../'
+                                }
+                            },
+                            {
+                                loader: 'css-loader',
+                                options: {
+                                    sourceMap: false,
+                                    importLoaders: 2,
+                                    modules: {
+                                        localIdentName: '[name]_[local]_[hash:base64:5]'
+                                    }
+                                }
+                            },
+                            {
+                                loader: 'postcss-loader',
+                                options: {
+                                    sourceMap: false,
+                                    plugins: [
+                                        require("autoprefixer")
+                                    ]
+                                }
+                            },
+                            {
+                                loader: 'less-loader',
+                                options: {
+                                  sourceMap: false
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        use: [
+                            {
+                                loader: MiniCssExtractPlugin.loader,
+                                options: {
+                                    hmr: false,
+                                    publicPath: '../'
+                                }
+                            },
+                            {
+                                loader: 'css-loader',
+                                options: {
+                                    sourceMap: false,
+                                    importLoaders: 2,
+                                }
+                            },
+                            {
+                                loader: 'postcss-loader',
+                                options: {
+                                    sourceMap: false,
+                                    plugins: [
+                                        require("autoprefixer")
+                                    ]
+                                }
+                            },
+                            {
+                                loader: 'less-loader',
+                                options: {
+                                  sourceMap: false
+                                }
+                            }
+                        ]
+                    },
                 ]
             },
             {
@@ -356,16 +533,32 @@ module.exports = {
                 include: path.resolve(__dirname, '../src'),
                 use: [
                     'cache-loader',
-                    'thread-loader',
+                    'thread-loader', //将loader操作放入单独线程运行
                     'babel-loader'
                 ]
             },
             {
-                test: /\.(woff|woff2|eot|ttf|otf)$/,
+                enforce: 'pre', //保证在babel转义之前进行代码检查
+                test: /\.(vue|(j|t)sx?)$/,
+                include: path.resolve(__dirname, '../src'),
                 use: [
-                    'url-loader'
+                  {
+                    loader: 'eslint-loader',
+                    options: {
+                      extensions: [
+                        '.js',
+                        '.jsx',
+                        '.vue'
+                      ],
+                      cache: true, //此选项启用将整理结果缓存到文件中。
+                      emitWarning: false, //关闭警告提示
+                      emitError: false, //关闭错误提示
+                      eslintPath: path.resolve(__dirname, '../node_modules/eslint'),
+                      formatter: undefined
+                    }
+                  }
                 ]
-            },
+            }
         ]
     },
 };
