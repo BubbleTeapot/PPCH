@@ -37,7 +37,7 @@ public class AjaxAuthenticationEntryPoint implements AuthenticationEntryPoint{
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, org.springframework.security.core.AuthenticationException e) throws IOException, ServletException {
         AjaxResponseBody responseBody = new AjaxResponseBody();
 
-        responseBody.setStatus("000");
+        responseBody.setCode("000");
         responseBody.setMsg("Need Login!");
 
         httpServletResponse.getWriter().write(JSON.toJSONString(responseBody));

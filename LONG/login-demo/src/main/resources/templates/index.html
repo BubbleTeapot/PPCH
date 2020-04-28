@@ -25,9 +25,12 @@
                 // dataType:"json",
                 success:function (data) {
                     console.log(data);
+                    if(data.code != "200") {
+                        alert(data.msg)
+                    }
                 },
                 error:function (data) {
-                    if (data != null) {
+                    if (data.responseJSON != null) {
                         alert(data.responseJSON.error_description);
                     }else {
                         alert("服务器开小差去了");
@@ -60,7 +63,7 @@
         };
 
         function test1(){
-            getAjax("test1")
+            getAjax("/test1")
         };
 
         function test2(){
