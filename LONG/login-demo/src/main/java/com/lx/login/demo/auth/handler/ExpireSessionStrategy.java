@@ -21,7 +21,7 @@ public class ExpireSessionStrategy implements SessionInformationExpiredStrategy 
 
         AjaxResponseBody responseBody = new AjaxResponseBody();
 
-        responseBody.setStatus("600");
+        responseBody.setCode("600");
         responseBody.setMsg("user is logined!");
 
         event.getResponse().getWriter().write(JSON.toJSONString(responseBody));

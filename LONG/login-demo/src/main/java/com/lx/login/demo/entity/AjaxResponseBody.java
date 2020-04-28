@@ -6,23 +6,23 @@ package com.lx.login.demo.entity;
  * @date 2020/4/23 11:36
  */
 public class AjaxResponseBody {
-    private String status;
+    private String code;
     private String msg;
 
-    public AjaxResponseBody(String status, String msg) {
-        this.status = status;
+    public AjaxResponseBody(String code, String msg) {
+        this.code = code;
         this.msg = msg;
     }
 
     public AjaxResponseBody() {
     }
 
-    public String getStatus() {
-        return status;
+    public String getCode() {
+        return code;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getMsg() {
@@ -36,7 +36,7 @@ public class AjaxResponseBody {
     @Override
     public String toString() {
         return "AjaxResponseBody{" +
-                "status='" + status + '\'' +
+                "code='" + code + '\'' +
                 ", msg='" + msg + '\'' +
                 '}';
     }

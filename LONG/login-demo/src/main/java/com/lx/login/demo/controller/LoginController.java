@@ -4,28 +4,18 @@ import com.lx.login.demo.entity.MyAuthentication;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.http.HttpRequest;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.*;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
-import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import javax.servlet.ServletRequest;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * @author longxin
@@ -61,43 +51,43 @@ public class LoginController {
         return token;
     }
 
-    @GetMapping("/loginPage")
+    @RequestMapping("/loginPage")
     public String loginPage(){
 
         return "login";
     }
 
-    @GetMapping("/index")
+    @RequestMapping("/index")
     public String index(){
         return "index";
     }
 
-    @GetMapping("/test1")
+    @RequestMapping("/test1")
     @ResponseBody
     public String test1(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return "test1";
     }
 
-    @GetMapping("/test2")
+    @RequestMapping("/test2")
     @ResponseBody
     public String test2(){
         return "test2";
     }
 
-    @GetMapping("/test3")
+    @RequestMapping("/test3")
     @ResponseBody
     public String test3(){
         return "test3";
     }
 
-    @GetMapping("/test4")
+    @RequestMapping("/test4")
     @ResponseBody
     public String test4(){
         return "test4";
     }
 
-    @GetMapping("/getUser")
+    @RequestMapping("/getUser")
     @ResponseBody
     public Authentication getUser(){
 
@@ -113,7 +103,7 @@ public class LoginController {
     RedisConnectionFactory redisConnectionFactory;
 
 
-    @PostMapping("/userLogout")
+    @RequestMapping("/userLogout")
     @ResponseBody
     public String logout(HttpServletRequest request){
         String token = request.getHeader("Authorization");

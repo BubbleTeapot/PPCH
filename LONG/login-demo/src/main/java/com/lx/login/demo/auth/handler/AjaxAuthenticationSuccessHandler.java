@@ -23,7 +23,7 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
         AjaxResponseBody responseBody = new AjaxResponseBody();
 
-        responseBody.setStatus("200");
+        responseBody.setCode("200");
         responseBody.setMsg(authentication.getPrincipal() + ": Login Success!");
 
         //验证是否有token，JWT

@@ -8,6 +8,7 @@ import com.lx.login.demo.auth.handler.oauth2.MyAuthenticationSuccessHandler;
 import com.lx.login.demo.dao.MyClientDetailDao;
 import com.lx.login.demo.entity.MyClientDetails;
 import com.lx.login.demo.entity.SelfUserDetails;
+import com.lx.login.demo.exception.MyOauth2WebResponseExceptionTranslator;
 import com.lx.login.demo.redis.RedisUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,10 +86,10 @@ public class OAuth2ServerConfig {
             // @formatter:on
             http
                     .formLogin()  //开启登录
-                    .loginPage("/loginPage")//登录路径
-                    .loginProcessingUrl("/login")//登录接口
-//                    .successHandler(authenticationSuccessHandler) // 自定义登录成功处理
-//                    .failureHandler(authenticationFailureHandler) // 自定义登录失败处理
+                    .loginPage("/user/loginPage")//登录路径
+                    .loginProcessingUrl("/oauth/token")//登录接口
+                    .successHandler(new AjaxAuthenticationSuccessHandler()) // 自定义登录成功处理
+                    .failureHandler(new AjaxAuthenticationFailureHandler()) // 自定义登录失败处理
 //                    .permitAll()
 //                    .and().exceptionHandling().accessDeniedPage("/loginPage")
 //                    .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)//自定义未登录处理
@@ -100,7 +101,7 @@ public class OAuth2ServerConfig {
 //                    .deleteCookies("JSESSIONID")
 ////                .invalidateHttpSession(true)
                     .permitAll();
-
+            http.exceptionHandling().accessDeniedHandler(new AjaxAccessDeniedHandler());
         }
     }
 
@@ -170,6 +171,7 @@ public class OAuth2ServerConfig {
                     .accessTokenConverter(accessTokenConverter())
 //                    .userDetailsService(selfUserDetailsService)
                     .authenticationManager(authenticationManager)
+                    .exceptionTranslator(new MyOauth2WebResponseExceptionTranslator())
                     .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST);
         }
 
@@ -187,6 +189,7 @@ public class OAuth2ServerConfig {
                     String userName = (String) authentication.getUserAuthentication().getPrincipal();
                     //把用户的主键uin放进去
                     additionalInformation.put("userName", userName);
+                    additionalInformation.put("code", "200");
                     ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInformation);
                     return super.enhance(accessToken, authentication);
                 }
