@@ -41,6 +41,7 @@ module.exports = {
         new FriendlyErrorsWebpackPlugin(), //识别webpack报错
         new HtmlWebpackPlugin({ //打包index.html
             title: 'PPCH', //页面title
+            favicon: path.resolve(__dirname, '../public/favicon.ico'),
             filename: 'index.html',
             template: './public/index.html'
         }),

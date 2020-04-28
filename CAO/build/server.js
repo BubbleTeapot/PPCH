@@ -14,6 +14,6 @@ webpackDevServer.addDevServerEntrypoints(config, options);
 const compiler = webpack(config);
 const server = new webpackDevServer(compiler, options);
 
-server.listen(80, '127.0.0.1', () => {
+server.listen(8001, '127.0.0.1', () => {
   console.log('start: 127.0.0.1:80');
 });

@@ -9,7 +9,7 @@ const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const PreloadPlugin = require('preload-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-// const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     mode: 'production', //生产模式
@@ -36,7 +36,7 @@ module.exports = {
         ]
     },
     plugins: [
-        // new CleanWebpackPlugin(), //清除dist/打包目录下的文件
+        new CleanWebpackPlugin(), //清除dist/打包目录下的文件
         new VueLoaderPlugin(), //解析vue文件
         new webpack.DefinePlugin( //定义开发环境得全局变量
             {
@@ -54,7 +54,7 @@ module.exports = {
         new OptimizeCssAssetsPlugin({ //css压缩
             assetNameRegExp: /\.css$/g, //一个正则表达式，指示应优化/最小化的资产的名称。提供的正则表达式针对配置中ExtractTextPlugin实例导出的文件的文件名运行，而不是源CSS文件的文件名。默认为/\.css$/g
             cssProcessor: require('cssnano'), //用于优化\最小化CSS的CSS处理器，默认为cssnano
-            cssProcessorOptions: {
+            cssProcessorPluginOptions: {
                 preset: [
                     'default',
                     {
@@ -70,6 +70,7 @@ module.exports = {
         new HtmlWebpackPlugin({ //打包index.html
             title: 'PPCH', //页面title
             filename: 'index.html',
+            favicon: path.resolve(__dirname, '../public/favicon.ico'),
             minify: { //缩小生成的HTML
                 collapseWhitespace: true,
                 removeComments: true,
