@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -63,6 +64,21 @@ public class ExceptionHandler {
     public AjaxResponseBody handleException(HttpServletRequest request, AuthenticationException e) {
         log.error("Exception code:{},message:{}", ResponseMsg.FAIL.getResultCode(), e);
         AjaxResponseBody response = new AjaxResponseBody(ResponseMsg.FAIL.getResultCode(), e.getMessage());
+        return response;
+    }
+
+    /**
+     * 捕获MethodArgumentNotValidException   注解校验异常
+     *
+     * @param request
+     * @param e
+     * @return
+     */
+    @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseBody
+    public AjaxResponseBody handleException(HttpServletRequest request, MethodArgumentNotValidException e) {
+        log.error("Exception code:{},message:{}", ResponseMsg.FAIL.getResultCode(), e);
+        AjaxResponseBody response = new AjaxResponseBody(ResponseMsg.PARAM_IS_NULL.getResultCode(), e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
         return response;
     }
 }

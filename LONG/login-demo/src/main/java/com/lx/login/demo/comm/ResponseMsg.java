@@ -18,7 +18,7 @@ public enum  ResponseMsg {
      * 操作失败的返回码
      */
     FAIL("SYS99999", "抱歉，系统繁忙，请稍后再试!"),
-    PARAM_IS_NULL("SYS99999", "参数为空，请重新输入"),
+    PARAM_IS_NULL("SYS00001", "参数为空，请重新输入"),
     ;
     private String resultCode;
 

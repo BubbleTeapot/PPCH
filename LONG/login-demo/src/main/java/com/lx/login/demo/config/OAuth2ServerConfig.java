@@ -152,7 +152,7 @@ public class OAuth2ServerConfig {
                             .resourceIds(resourceIds)
                             .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(details.getClientSecret()))
                             //设置token有效期
-                            .accessTokenValiditySeconds(5 * 60)
+                            .accessTokenValiditySeconds(3600)
                             //设置refreshToken有效期
                             .refreshTokenValiditySeconds(24 * 3600)
                             //支持的认证方式
