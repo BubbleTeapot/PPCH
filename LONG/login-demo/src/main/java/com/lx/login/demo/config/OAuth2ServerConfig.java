@@ -86,7 +86,7 @@ public class OAuth2ServerConfig {
             // @formatter:on
             http
                     .formLogin()  //开启登录
-                    .loginPage("/user/loginPage")//登录路径
+                    .loginPage("/loginPage")//登录路径
                     .loginProcessingUrl("/oauth/token")//登录接口
                     .successHandler(new AjaxAuthenticationSuccessHandler()) // 自定义登录成功处理
                     .failureHandler(new AjaxAuthenticationFailureHandler()) // 自定义登录失败处理
