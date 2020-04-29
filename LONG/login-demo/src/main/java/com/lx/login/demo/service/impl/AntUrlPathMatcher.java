@@ -1,6 +1,7 @@
 package com.lx.login.demo.service.impl;
 
 import com.lx.login.demo.service.UrlMatcher;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
@@ -8,6 +9,7 @@ import org.springframework.util.PathMatcher;
 /**
  * Created by LXM on 2017/4/6.
  */
+@Slf4j
 @Service
 public class AntUrlPathMatcher implements UrlMatcher {
     private boolean requiresLowerCaseUrl;
