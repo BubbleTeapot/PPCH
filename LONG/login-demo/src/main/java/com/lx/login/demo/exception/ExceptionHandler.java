@@ -23,6 +23,21 @@ public class ExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(ExceptionHandler.class);
 
     /**
+     * 捕获MyValidException  注解校验异常
+     *
+     * @param request
+     * @param e
+     * @return
+     */
+    @org.springframework.web.bind.annotation.ExceptionHandler(MyValidException.class)
+    @ResponseBody
+    public AjaxResponseBody handleException(HttpServletRequest request, MyValidException e) {
+        log.error("Exception code:{},message:{}", ResponseMsg.FAIL.getResultCode(), e);
+        AjaxResponseBody response = new AjaxResponseBody(ResponseMsg.PARAM_IS_NULL.getResultCode(), e.getMessage());
+        return response;
+    }
+
+    /**
      * 捕捉Exception
      *
      * @param request
@@ -81,4 +96,6 @@ public class ExceptionHandler {
         AjaxResponseBody response = new AjaxResponseBody(ResponseMsg.PARAM_IS_NULL.getResultCode(), e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
         return response;
     }
+
+
 }

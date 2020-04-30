@@ -3,6 +3,7 @@ package com.lx.login.demo.controller;
 import com.lx.login.demo.config.OAuth2ServerConfig;
 import com.lx.login.demo.entity.MyAuthentication;
 import com.lx.login.demo.entity.TestBo;
+import com.lx.login.demo.exception.MyValidException;
 import com.lx.login.demo.service.TestService;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
@@ -113,7 +114,8 @@ public class LoginController {
     public void test6(){
         TestBo bo = new TestBo();
         bo.setId("12212");
-        testService.test(bo);
+        testService.test("");
+
     }
 
     @RequestMapping("/getUser")

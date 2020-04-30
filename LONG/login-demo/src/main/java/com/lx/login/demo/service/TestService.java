@@ -1,6 +1,7 @@
 package com.lx.login.demo.service;
 
 import com.lx.login.demo.entity.TestBo;
+import com.lx.login.demo.exception.MyValidException;
 
 /**
  * @author longxin
@@ -8,5 +9,5 @@ import com.lx.login.demo.entity.TestBo;
  * @date 2020/4/29 17:32
  */
 public interface TestService {
-    void test(TestBo bo);
+    void test(String bo);
 }
