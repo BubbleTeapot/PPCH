@@ -1,7 +1,13 @@
 package com.lx.login.demo.controller;
 
+import com.lx.login.demo.config.OAuth2ServerConfig;
 import com.lx.login.demo.entity.MyAuthentication;
+import com.lx.login.demo.entity.TestBo;
+import com.lx.login.demo.exception.MyValidException;
+import com.lx.login.demo.service.TestService;
 import org.apache.commons.collections.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.core.Authentication;
@@ -11,9 +17,14 @@ import org.springframework.security.oauth2.provider.*;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import sun.plugin2.main.server.ResultHandler;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -25,11 +36,16 @@ import java.util.LinkedList;
 @Controller
 //@RequestMapping("/user")
 public class LoginController {
+    private static final Logger log = LoggerFactory.getLogger(LoginController.class);
+
     @Autowired
     private ClientDetailsService clientDetailsService;
 
     @Autowired
     private AuthorizationServerTokenServices authorizationServerTokenServices;
+
+    @Autowired
+    private TestService testService;
 
 
     @RequestMapping("/login")
@@ -85,6 +101,21 @@ public class LoginController {
     @ResponseBody
     public String test4(){
         return "test4";
+    }
+
+    @RequestMapping("/test5")
+    @ResponseBody
+    public String test5(@RequestBody @Valid TestBo bo){
+        return "test5";
+    }
+
+    @RequestMapping("/test6")
+    @ResponseBody
+    public void test6(){
+        TestBo bo = new TestBo();
+        bo.setId("12212");
+        testService.test("");
+
     }
 
     @RequestMapping("/getUser")

@@ -86,7 +86,7 @@ public class OAuth2ServerConfig {
             // @formatter:on
             http
                     .formLogin()  //开启登录
-                    .loginPage("/user/loginPage")//登录路径
+                    .loginPage("/loginPage")//登录路径
                     .loginProcessingUrl("/oauth/token")//登录接口
                     .successHandler(new AjaxAuthenticationSuccessHandler()) // 自定义登录成功处理
                     .failureHandler(new AjaxAuthenticationFailureHandler()) // 自定义登录失败处理
@@ -152,7 +152,7 @@ public class OAuth2ServerConfig {
                             .resourceIds(resourceIds)
                             .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(details.getClientSecret()))
                             //设置token有效期
-                            .accessTokenValiditySeconds(5 * 60)
+                            .accessTokenValiditySeconds(3600)
                             //设置refreshToken有效期
                             .refreshTokenValiditySeconds(24 * 3600)
                             //支持的认证方式
