@@ -1,26 +1,26 @@
 <template>
   <div class="container">
-    <div class="lg-wrapper">
-      <div class="lg-bg"></div>
-      <div class="lg-box">
-        <div class="lg-title ftCl1 no-st">登录</div>
-        <div class="lg-welcome ftCl1 no-st">欢迎回来</div>
-        <el-form :model="lgForm" :rules="rules" ref="lgForm" class="lg-form">
+    <div class="rg-wrapper">
+      <div class="rg-box">
+        <div class="rg-title ftCl1 no-st">注册</div>
+        <div class="rg-welcome ftCl1 no-st">遇事不决可问春风</div>
+        <el-form :model="rgForm" :rules="rules" ref="rgForm" class="rg-form">
           <el-form-item prop="username">
             <span slot="label" class="ur-name ftCl1">用户名</span>
-            <el-input v-model="lgForm.username"></el-input>
+            <el-input v-model="rgForm.username"></el-input>
           </el-form-item>
           <el-form-item prop="password">
             <span slot="label" class="ur-pwd ftCl1">密码</span>
-            <el-input type="password" v-model="lgForm.password" autocomplete="off"></el-input>
+            <el-input type="password" v-model="rgForm.password" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item prop="passwordAgain">
+            <span slot="label" class="ur-pwd ftCl1">再次输入密码</span>
+            <el-input type="password" v-model="rgForm.passwordAgain" autocomplete="off"></el-input>
           </el-form-item>
         </el-form>
-        <div class="sbmt-btn btn bgCl1 bdCl1 ftCl2 no-st csr" @click="submitForm('lgForm')">登录</div>
-        <div class="no-st crfix">
-          <div class="rg-btn btn ftCl3 csr fl" @click="toRegister">注册</div>
-          <div class="fd-pwd btn ftCl1 csr fr">忘记密码</div>
-        </div>
+        <div class="sbmt-btn btn bgCl1 bdCl1 ftCl2 no-st csr" @click="submitForm('rgForm')">注册</div>
       </div>
+      <div class="rg-bg"></div>
     </div>
   </div>
 </template>
@@ -40,9 +40,10 @@ export default {
       callback()
     };
     return {
-      lgForm: {
+      rgForm: {
         usernameL: '',
-        password: ''
+        password: '',
+        passwordAgain: ''
       },
       rules: {
         username: [
@@ -50,7 +51,8 @@ export default {
         ],
         password: [
           {validator: checkPassword, trigger: 'blur'}
-        ]
+        ],
+
       }
     }
   },
@@ -61,11 +63,8 @@ export default {
           return;
         }
       })
-    },
-    toRegister() {
-      this.$router.push({name: 'register'})
     }
   }
 }
 </script>
-<style lang="less" src="./styles/login.less" scoped></style>
+<style lang="less" src="./styles/register.less" scoped></style>

@@ -1,0 +1,38 @@
+// 主题切换
+.theme(
+  @ftCl1,
+  @ftCl2,
+  @ftCl3,
+  @bgCl1,
+  @bdCl1,
+) {
+  .ftCl1 {
+    color: @ftCl1;
+  }
+  .ftCl2 {
+    color: @ftCl2;
+  }
+  .ftCl3 {
+    color: @ftCl3;    
+  }
+  .bgCl1 {
+    background-color: #409eff;
+  }
+  .bdCl1 {
+    border-color: #409eff;
+  }
+}
+.themeOrange {
+  @ftCl1: #1d1d1d;
+  @ftCl2: #fff;
+  @ftCl3: #E6A23C;
+  @bgCl1: #409eff;
+  @bdCl1: #409eff;
+  .theme(
+    @ftCl1,
+    @ftCl2,
+    @ftCl3,
+    @bgCl1,
+    @bdCl1,
+  );
+}
