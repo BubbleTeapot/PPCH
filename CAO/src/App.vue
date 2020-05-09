@@ -1,6 +1,5 @@
 <template>
-  <div class="themeOrange">
+  <div class="themeOrange" id="app">
     <router-view></router-view> 
   </div>
 </template>
-<style lang="less" src="./styles/common.less"></style>
